@@ -16,8 +16,6 @@ def get_db():
 
 db_dependency = Annotated[Session, Depends(get_db)]
 
-
-
 # Get Problem 
 @router.get("/problems/{problem_id}")
 async def read_problem(problem_id: int, db: db_dependency):
@@ -29,7 +27,7 @@ async def read_problem(problem_id: int, db: db_dependency):
 # Add new problem
 @router.post("/problems")
 async def create_problems(problem:ProblemBase, db: db_dependency):
-    db_problem = ProblemBase(
+    db_problem = Problem(
         title = problem.title,
         description=problem.description,
         difficulty=problem.difficulty
