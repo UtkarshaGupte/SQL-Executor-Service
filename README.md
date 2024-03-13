@@ -1,0 +1,2 @@
+The SQL Executor Service is a powerful tool designed to streamline and simplify the execution of SQL queries across various databases. It provides a user-friendly interface for users to submit SQL queries, retrieve results, and manage database connections effectively.
+The SQL Executor Service will support multiple database management systems, including MySQL, PostgreSQL, SQLite, and more, enabling users to execute queries seamlessly across different platforms.
