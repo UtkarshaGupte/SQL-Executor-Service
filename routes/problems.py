@@ -5,7 +5,9 @@ from typing import List, Annotated
 from db.database import engine, SessionLocal
 from sqlalchemy.orm import Session
 from schemas.problems import Problem, Testcase, TestCaseSubmission, Submission
+from controller.problems import get_problem, post_problem, del_problem, upd_problem
 router = fastapi.APIRouter()
+
 
 def get_db():
     db = SessionLocal()
@@ -19,7 +21,7 @@ db_dependency = Annotated[Session, Depends(get_db)]
 # Get Problem 
 @router.get("/problems/{problem_id}")
 async def read_problem(problem_id: int, db: db_dependency):
-    res = db.query(Problem).filter(Problem.id == problem_id).first()
+    res = get_problem(problem_id, db)
     if not res:
         raise HTTPException(status_code=404, detail='Problem is not Found')
     return res
@@ -27,40 +29,23 @@ async def read_problem(problem_id: int, db: db_dependency):
 # Add new problem
 @router.post("/problems")
 async def create_problems(problem:ProblemBase, db: db_dependency):
-    db_problem = Problem(
-        title = problem.title,
-        description=problem.description,
-        difficulty=problem.difficulty
-    )
-    db.add(db_problem)
-    db.commit()
-
+    db_problem = post_problem(problem, db)
     return db_problem
 
 # Delete an existing problem
 @router.delete("/problems/{problem_id}")
 async def delete_problem(problem_id: int, db: db_dependency):
-    problem = db.query(Problem).filter(Problem.id == problem_id).first()
+    problem = get_problem(problem_id, db)
     if not problem:
-        raise HTTPException(status_code=404, detail='Problem not found')
-    
-    db.delete(problem)
-    db.commit()
+        raise HTTPException(status_code=404, detail='Problem not found')   
+    del_problem(problem_id, db)
     return {"message": "Problem deleted successfully"}
 
 
 # Update a problem
 @router.put("/problems/{problem_id}")
 async def update_problem(problem_id: int, problem_data: ProblemBase, db: db_dependency):
-    problem = db.query(Problem).filter(Problem.id == problem_id).first()
-    if not problem:
-        raise HTTPException(status_code=404, detail='Problem not found')
-    
-    problem.ProblemTitle = problem_data.ProblemTitle
-    problem.ProblemDescription = problem_data.ProblemDescription
-    problem.ProblemDifficulty = problem_data.ProblemDifficulty
-    
-    db.commit()
+    problem = upd_problem(problem_id,problem_data, db)
     return problem
 
 
