@@ -1,4 +1,6 @@
-from fastapi import HTTPException, Depends, APIRouter
+import os
+import shutil
+from fastapi import File, HTTPException, Depends, APIRouter, UploadFile
 import fastapi
 from models.problems import ProblemBase, TestcaseSchemaBase, TestCaseSubmissionSchemaBase, SubmissionSchemaBase
 from typing import List, Annotated
@@ -51,20 +53,28 @@ async def update_problem(problem_id: int, problem_data: ProblemBase, db: db_depe
 
 # Add test cases for a problem
 @router.post("/problems/{problem_id}/testcases")
-async def create_testcases_for_problem(problem_id: int, testcases: List[TestcaseSchemaBase], db: db_dependency):
+async def create_testcases_for_problem(problem_id: int,db: db_dependency, testFile: UploadFile = File(...) ,outputFile: UploadFile = File(...)):
+    
     # Check if the problem exists
     problem = db.query(Problem).filter(Problem.id == problem_id).first()
     if not problem:
         raise HTTPException(status_code=404, detail='Problem not found')
-
-    # Create test cases for the problem
-    for testcase_data in testcases:
-        testcase = Testcase(
-            problem_id=problem_id,
-            filePath=testcase_data.filePath,
-            expectedOutput=testcase_data.expectedOutput
-        )
-        db.add(testcase)
     
+    
+    test_file_path = os.path.join("test_files", testFile.filename)
+    with open(test_file_path, "w+b") as test_file:
+        shutil.copyfileobj(testFile.file, test_file)
+
+    expected_output_file_path = os.path.join("output_files", outputFile.filename)
+    with open(expected_output_file_path, "wb") as expected_output_file:
+        shutil.copyfileobj(outputFile.file, expected_output_file)
+
+    testcase = Testcase(
+        problem_id=problem_id,
+        testFile=test_file_path,
+        outputFile=expected_output_file_path
+    )
+    db.add(testcase)
     db.commit()
+
     return {"message": "Test cases added successfully"}

@@ -1,4 +1,5 @@
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String
+from fastapi import File, UploadFile
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, LargeBinary
 from db.database import Base
 
 class Problem(Base):
@@ -16,8 +17,8 @@ class Testcase(Base):
 
     id = Column(Integer, primary_key=True)
     problem_id = Column(Integer, ForeignKey('problems.id'))
-    filepath = Column(String)
-    expected_output = Column(String)
+    testFile = Column(String)
+    outputFile = Column(String)
 
     
 # Define Submissions table model
