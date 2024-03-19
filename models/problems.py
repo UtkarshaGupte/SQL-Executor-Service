@@ -6,10 +6,9 @@ class ProblemBase(BaseModel):
     difficulty: str
 
 class TestcaseSchemaBase(BaseModel):
-    id: int
-    problemId: int
-    filePath: str
-    expectedOutput: str
+    problem_id: int
+    testFile: str
+    outputFile: str
 
 class SubmissionSchemaBase(BaseModel):
     id: int
